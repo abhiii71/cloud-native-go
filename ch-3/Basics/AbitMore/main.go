@@ -35,6 +35,10 @@ func main() {
 
 	defer fmt.Println("Executed after below line")
 	fmt.Println("Executed before defer")
+
+	defer fmt.Println("defer 1") // executed 3rd
+	defer fmt.Println("defer 2") // executed 2nd
+	defer fmt.Println("defer 3") // executed 1st
 }
 
 // FUNCTIONS
