@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"time"
+)
 
 func main() {
 
@@ -199,5 +203,74 @@ func controlStruct() {
 	} else {
 		fmt.Println("7 is odd")
 	}
+
+	// an initialization statement to precede the condition clause in an if statement
+	if _, err := os.Open("foo.txt"); err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("All in fine.")
+	}
+	// same as below
+	_, err := os.Open("foo.go")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("All is fine.")
+	}
+
+	// switch Statement
+	// there’s no fallthrough between the cases by default
+	j := 0
+	switch j % 3 {
+	case 0:
+		fmt.Println("zero")
+		fallthrough
+	case 1:
+		fmt.Println("one")
+	case 2:
+		fmt.Println("two")
+	default:
+		fmt.Println("Heh????")
+	}
+
+	// ways you can write a switch statements
+
+	// 1
+	hour := time.Now().Hour()
+	switch {
+	case hour >= 5 && hour < 9:
+		fmt.Println("I'm writing")
+	case hour >= 9 && hour < 18:
+		fmt.Println("I'm working")
+	default:
+		fmt.Println("I'm sleeping")
+	}
+
+	// 2
+	switch hour := time.Now().Hour(); { // Empty expression means "true"
+	case hour >= 5 && hour < 9:
+		fmt.Println("I'm writing")
+	case hour >= 9 && hour < 18:
+		fmt.Println("I'm working")
+	default:
+		fmt.Println("I'm sleeping")
+	}
+}
+
+// Error Handling
+func errrors() {
+	// file, err := os.Open("somefile.txt")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	return err
+	// }
+
+	// The actual implementation of the error type is actually incredibly simple: it’s just a
+	// universally visible interface that declares a single method:
+	type error interface {
+		Error() string
+	}
+
+	// Creating an Error
 
 }
