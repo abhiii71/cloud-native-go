@@ -6,6 +6,10 @@ func main() {
 
 	// fmt.Println("containers: ")
 	// containers()
+
+	// fmt.Println("pointers: ")
+	pointers()
+
 }
 
 // bool
@@ -133,5 +137,67 @@ func containers() {
 }
 
 func pointers() {
+
+	// ptr store the address of the variable
+	// ptr allow us to read and update the value of the variable
+
+	// retrieving address of the variable
+	aa := 71
+	pp := &aa
+	// ptr type 'points to' type of *int * indicates that it's ptr type that points to an int.
+
+	// dereferencing a pointer
+	// retrieve value of the value a from p, dereference using * before ptr variable name allowing update/read
+
+	var a int = 71
+	var p *int = &a
+	fmt.Println(pp) // igives address of a
+
+	*p = 69 // updating using ptr
+	fmt.Println(a)
+
+}
+
+func controlStruct() {
+	// there's only one for loop in the language
+	sum := 0
+	for i := 0; i < 10; i++ {
+		sum += i
+
+	}
+	fmt.Println(sum) // 10
+
+	// Go's for statement's init and post statements are entire optional
+
+	sum, i := 0, 0
+	for i <= 0 {
+		sum += i
+		i++
+	}
+	fmt.Println(i, sum) // 10, 45
+
+	// Looping over arrays and slices
+	s := []int{2, 4, 8, 16, 32} // A slice of ints
+	for i, v := range s {       // range gets each index/value
+		fmt.Println(i, "->", v) // Output index and its value
+	}
+
+	// Looping over maps
+	m := map[int]string{
+		1: "January",
+		2: "February",
+		3: "March",
+		4: "April",
+	}
+	for k, v := range m {
+		fmt.Println(k, "->", v)
+	}
+
+	// if Statement
+	if 7%2 == 0 {
+		fmt.Println("7 is even")
+	} else {
+		fmt.Println("7 is odd")
+	}
 
 }
