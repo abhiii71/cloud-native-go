@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -14,6 +15,18 @@ func main() {
 	// fmt.Println("pointers: ")
 	pointers()
 
+	// closures
+	var f func(int, int) int // Function variables have types
+	f = sum
+	fmt.Println(f(3, 5)) // "8"
+	f = product          // Legal: product has same type as sum
+	fmt.Println(f(3, 5))
+	increment := incrementer()
+	fmt.Println(increment()) // "1"
+	fmt.Println(increment()) // "2"
+	fmt.Println(increment()) // "3"
+	newIncrement := incrementer()
+	fmt.Println(newIncrement()) // "1"
 }
 
 // bool
@@ -273,4 +286,63 @@ func errrors() {
 
 	// Creating an Error
 
+	// there are two ways to create errors
+	e1 := errors.New("error 71")
+	e2 := fmt.Errorf("error %d", 71)
+
+	fmt.Println("e1: ", e1, "e2: ", e2)
 }
+
+func functions() {
+	//  Functions: Variadics and Closures
+
+	// functions:
+	// can have Multiple return values
+	// Defer (keyword used to execute immediately before function return)
+	// defer fmt.Println("cruel world")
+
+}
+
+// variadic functions
+// It is one that may be called with zero or more trailing arguments.
+func Printf(format string, a ...interface{}) (n int, err error) {
+
+	// ... = ellipsis
+	// This is the varia‐dic operator, which indicates that the function
+	// may be called with any number of arguments of this type.
+	const name, age = "abhi", 23
+	fmt.Printf("%s is %d years old.\n", name, age)
+
+	return 0, nil
+}
+
+func productt(factors ...int) int {
+	p := 1
+	for _, n := range factors {
+		p *= n
+	}
+	return p
+}
+func vard() {
+	// Passing slices as variadic values
+	m := []int{3, 4, 5}
+	fmt.Println(productt(m...))
+}
+
+// Anonymous Functions and Closures
+func sum(x, y int) int     { return x + y }
+func product(x, y int) int { return x * y }
+
+// Functions may be created within other functions as anonymous functions
+// A closure is a nested function that has access to the variables of its
+// parent function, even after the parent has executed.
+func incrementer() func() int {
+	i := 0
+	return func() int { // Return an anonymous function
+		i++ // "Closes over" parent function's i
+		return i
+	}
+}
+
+// Structs, Methods, and Interfaces
+
