@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"time"
 )
@@ -27,6 +28,32 @@ func main() {
 	fmt.Println(increment()) // "3"
 	newIncrement := incrementer()
 	fmt.Println(newIncrement()) // "1"
+
+	// methods
+	Methods()
+
+	// interface
+	r := Rectangel{width: 5, Height: 10}
+	PrintArea(r)
+
+	c := Circle{Radius: 5}
+	PrintArea(c)
+
+	// assertion
+	assert()
+
+	// promotions
+	p := Person{
+		Name: "Abhishek",
+		Age:  25,
+		Address: Address{
+			City:    "Shimla",
+			Pincode: 171001,
+		},
+	}
+	// Accessing promoted fields directly from Person
+	fmt.Println(p.City)    // Shimla
+	fmt.Println(p.Pincode) // 171001
 }
 
 // bool
@@ -345,4 +372,187 @@ func incrementer() func() int {
 }
 
 // Structs, Methods, and Interfaces
+//  Go allows components to be assembled into a whole using composition
 
+// Structs
+type Vertex struct {
+	X, Y float64
+}
+
+func structt() {
+	var v Vertex   // structs are never nil
+	fmt.Println(v) // "{0 0}"
+
+	v = Vertex{}   // Explicitly define an empty struct
+	fmt.Println(v) // "{0 0}"
+
+	v = Vertex{1.0, 2.0} // Defining fields, in order
+	fmt.Println(v)       // "{1 2}"
+
+	v = Vertex{Y: 2.5} // Defining specific fields, by label
+	fmt.Println(v)     // "{0 2.5}"
+
+	// Struct fields can be accessed using the standard dot notation:
+	v.X *= 1.5
+	v.Y *= 2.5
+	fmt.Println(v)
+
+	var vv *Vertex = &Vertex{1, 3}
+	fmt.Println(vv) // &{1 3}
+	vv.X, vv.Y = vv.Y, vv.X
+	fmt.Println(vv)
+}
+
+// Methods
+// methods are functions that are attached to types,
+// e declaration syntax for a method is very similar to that of a function, except that it includes an extra
+// receiver argument before the function name that specifies the type that the method is attached to
+func (v *Vertex) Square() { // Attach method to the *Vertex type
+	v.X *= v.X
+	v.Y *= v.Y
+}
+
+type MyMap map[string]int
+
+func (m MyMap) Length() int {
+	return len(m)
+}
+
+func Methods() {
+	vert := &Vertex{X: 71, Y: 69}
+	fmt.Println(vert)
+
+	vert.Square()
+	fmt.Println(vert)
+
+	mm := MyMap{"A": 1, "B": 2}
+	fmt.Println(mm)          // "map[A:1 B:2]"
+	fmt.Println(mm["A"])     // "1"
+	fmt.Println(mm.Length()) // "2"
+}
+
+// Interfaces
+//  an interface is just a set of method signatures
+/*
+As in other languages with a concept of an interface, they are used to describe the general behaviors of other types
+without being coupled to implementation details
+An interface can thus be viewed as a contract that a type may satisfy, opening the door to powerful abstraction techniques.
+*/
+
+/*
+For example, a Shape interface can be defined that includes an Area method signa‐
+ture. Any type that wants to be a Shape must have an Area method that returns a
+float64
+*/
+type Shape interface {
+	Area() float64
+}
+
+/*
+Now we’ll define two shapes, Circle and Rectangle, that satisfy the Shape interface
+by attaching an Area method to each one.
+*/
+type Circle struct {
+	Radius float64
+}
+
+func (c Circle) Area() float64 {
+	return math.Pi * c.Radius * c.Radius
+}
+
+type Rectangel struct {
+	width, Height float64
+}
+
+func (r Rectangel) Area() float64 {
+	return r.width * r.Height
+}
+
+/*
+Because both Circle and Rectangle implicitly satisfy the Shape interface, we can
+pass them to any function that expects a Shape
+*/
+
+func PrintArea(s Shape) {
+	fmt.Printf("%T's area is %0.2f\n", s, s.Area())
+}
+
+// Type assertions
+
+/*
+assertion is a mechanism to check the dynamic type of a value during runtime.
+It is used to ensure that the value of a variable conforms to a certain type or
+interface before executing operations on it. Assertion is particularly useful
+when dealing with interface types, where the actual type of the underlying value is unknown.
+
+basic assertion is performed using the . (dot) operator and the type assertion expression x.(T),
+where x is the value being asserted, and T is the expected type. If the assertion is successful,
+the result is the underlying value of type T. If the assertion fails, a runtime error occurs.
+*/
+func assert() {
+	var s interface{} = 71
+	i := s.(int)
+	fmt.Println(i)
+
+	/*
+		Comma Ok Idiom
+		In Go, the comma ok idiom is a way to perform a safe assertion on an interface value without causing a runtime error.
+	*/
+	var ii interface{} = 69
+	s, ok := ii.(string)
+	if ok {
+		fmt.Println(s)
+	} else {
+		fmt.Println("ii is not a string")
+	}
+}
+
+// empty interface
+/*
+A variable of type interface{} can hold values of any type, which can be very useful
+when your code needs to handle values of any type
+*/
+
+// Composition with Type Embedding
+// instead of inheritance go provide composition
+
+// interface embedding
+type Reader interface {
+	Read(p []byte) (n int, err error)
+}
+
+type Writer interface {
+	Write(p []byte) (n int, err error)
+}
+
+// e, Go allows you to embed the two existing inter‐
+// faces into a third one that takes on the features of both.
+type ReadWriter interface {
+	Reader
+	Writer
+}
+
+// The result of this composition is a new interface that has all of the methods of the
+// interfaces embedded within it.
+
+// Struct embedding
+// syntax for embedding structs is identical to that of interfaces
+type readWriter struct {
+	Reader
+	Writer
+}
+
+// Promotion
+// It refers to how embedded fields in a struct can be accessed as if they are part of the outer struct.
+type Address struct {
+	City    string
+	Pincode int
+}
+
+type Person struct {
+	Name    string
+	Age     int
+	Address // Embedded struct
+}
+
+// The Good Stuff: Concurrency
