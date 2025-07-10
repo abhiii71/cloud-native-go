@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"time"
@@ -54,6 +55,14 @@ func main() {
 	// Accessing promoted fields directly from Person
 	fmt.Println(p.City)    // Shimla
 	fmt.Println(p.Pincode) // 171001
+
+	// goroutines
+	foo() // call foo and wait it for return
+
+	go foo() // swapn a new goroutine that calls foo concurrently
+
+	// Channel
+	chann()
 }
 
 // bool
@@ -556,3 +565,123 @@ type Person struct {
 }
 
 // The Good Stuff: Concurrency
+// Goroutines
+//
+//	run concurrent goroutine simply by adding the go keyword
+func foo() {
+	fmt.Println("this is foo ")
+}
+
+// Goroutines can also be used to invoke a function literal:
+func Log(w io.Writer, message string) {
+	go func() {
+		fmt.Fprintln(w, message)
+	}() // Don't forget the trailing parentheses!
+}
+
+// Channels
+/*
+channels are typed primitives that allow communication between two
+goroutines. They act as pipes into which a value can be sent and then received by a
+goroutine on the other end.
+Channels may be created using the make function. Each channel can transmit values
+of a specific type, called its element type. Channel types are written using the chan
+keyword followed by their element type.
+*/
+func chann() {
+	// var ch chan int = make(chan int)
+	// two primary operations supported by channels are send and receive, both of which use the <- operator
+	// ch <- val // sending on a channel
+	// val = <- ch // Receiving on a channel and assigning it to val
+	// <- ch // Receving on a channel and discarding the result
+
+	// Channel blocking
+	/*
+	   By default, a channel is unbuffered.
+	   Unbuffered channels have a very useful property:
+	   sends on them block until another goroutine receives on the channel, and receives
+	   block until another goroutine sends on the channel.
+	*/
+	chh := make(chan string) // Allocate a string channel
+	go func() {
+		message := <-chh     // Blocking receive; assign a message
+		fmt.Println(message) // 'ping'
+		chh <- "pong"        // Blocking send
+	}()
+	chh <- "ping"      // send "ping"
+	fmt.Println(<-chh) // "pong"
+
+	/*
+		main and the anonymous goroutine run concurrently and could in theory
+		run in any order, the blocking behavior of unbuffered channels guarantees that the
+		output will always be “ping” followed by “pong.”
+	*/
+
+	// Channel buffering
+	/*
+		Go channels may be buffered, in which case they contain an internal value queue with
+		a fixed capacity that’s specified when the buffer is initialized. Sends to a buffered
+		channel only block when the buffer is full; receives from a channel only block when
+		the buffer is empty.
+
+		A buffered channel can be created by providing a second argument to the make function to indicate its capacity:
+	*/
+	ch := make(chan string, 2)
+	ch <- "pinnz" // two non-blocking sends
+	ch <- "ponzz"
+
+	fmt.Println(<-ch) // two non-blocker receives
+	fmt.Println(<-ch)
+
+	// fmt.Println(<-ch) // third receive will block  will cause error
+
+	// Closing channels
+	/*
+		third available channel operation is close, which sets a flag to indicate that no
+		more values will be sent on it. The built-in close function can be used to close achannel: close(ch).
+		The channel close operation is just a flag to tell the receiver not to
+		expect any more values. You don’t have to explicitly close channels.
+	*/
+
+	// Looping over channels
+	/*
+		range keyword may be used to loop over channels that are open or contain buffered values.
+		The loop will block until a value is available to be read or until the channel is closed.
+	*/
+	ch = make(chan string, 3)
+	ch <- "foo" // Send three (buffered) values to the channel
+	ch <- "bar"
+	ch <- "baz"
+	close(ch)           // Close the channel
+	for s := range ch { // Range will continue to the "closed" flag
+		fmt.Println(s)
+	}
+
+	// Select
+	/*
+		select statements are a little like switch statements that provide a convenient
+		mechanism for multiplexing communications with multiple channels
+	*/
+	y := "y"
+	ch = make(chan string, 3)
+	select {
+	case <-ch: // Discard received value
+		fmt.Println("Got something")
+	case x := <-ch: // Assign received value to x
+		fmt.Println(x)
+	case ch <- y: // send y to channel
+		fmt.Println(y)
+	default:
+		fmt.Println("None of the above")
+	}
+
+	// Implementing channel timeouts
+
+	select {
+	case m := <-ch: // Read from ch; blocks forever
+		fmt.Println(m)
+	case <-time.After(10 * time.Second): // time.After returns a channel
+		fmt.Println("Timed out")
+	}
+
+}
